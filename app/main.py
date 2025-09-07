@@ -24,7 +24,7 @@ def aggregate_lad_to_level(lad_df, level_map, metric_col):
     level_map: dict mapping LAD25NM -> County/Region
     """
     df = lad_df.copy()
-    df[level_map['name']] = df['LAD25NM'].map(level_map['map'])
+    df[level_map['name']] = df['LAD23NM'].map(level_map['map'])
     agg_df = df.groupby(level_map['name'])[metric_col].mean().reset_index()
     agg_df.rename(columns={level_map['name']: level_map['name'], metric_col: metric_col}, inplace=True)
     return agg_df
@@ -36,7 +36,7 @@ def aggregate_lad_to_region(lad_df, metric_col):
     metric_col: the column to aggregate (e.g., 'Total', 'over80_ratio')
     """
     df = lad_df.copy()
-    df["Region"] = df["LAD25NM"].map(lad_region_dict)
+    df["Region"] = df["LAD23NM"].map(lad_region_dict)
     agg_df = df.groupby("Region")[metric_col].mean().reset_index()
     return agg_df
 
@@ -47,7 +47,26 @@ def aggregate_lad_to_county(lad_df, metric_col):
     metric_col: the column to aggregate (e.g., 'Total', 'over80_ratio')
     """
     df = lad_df.copy()
-    df["County"] = df["LAD25NM"].map(lad_county_dict)
+    # --- Normalize LAD names to match the mapping keys ---
+    df["LAD23NM"] = df["LAD23NM"].replace({
+        "Herefordshire": "Herefordshire, County of",
+        "Bristol": "Bristol, City of",
+        "Kingston upon Hull": "Kingston upon Hull, City of"
+    })
+
+    df["County"] = df["LAD23NM"].map(lad_county_dict)
+
+    # --- Handle special cases ---
+    # Example: aggregate all Hertfordshire LADs into one value
+
+    # """
+    # herts_value = df.loc[df['LAD23NM'].str.contains("Hertfordshire"), metric_col].mean()  # or sum()
+    # # Remove individual Hertfordshire LADs
+    # df = df[~df['LAD23NM'].str.contains("Hertfordshire")]
+    # # Add aggregated row
+    # df = pd.concat([df, pd.DataFrame({"County": ["Hertfordshire"], metric_col: [herts_value]})], ignore_index=True)
+    # """
+
     agg_df = df.groupby("County")[metric_col].mean().reset_index()
     return agg_df
 
@@ -80,7 +99,7 @@ def aggregate_lad_to_county(lad_df, metric_col):
 
 # Load preprocessed data
 # Streamlit page config
-st.set_page_config(page_title="UK Market Analysis", layout="wide")
+st.set_page_config(page_title="England & Wales Market Analysis", layout="wide")
 
 # Load aggregated data at LAD level
 lad_df = load_lad_population(LAD_POP_CSV_AGG)
@@ -95,7 +114,7 @@ lad_county_dict = dict(zip(lad_county_map["LTLA23NM"], lad_county_map["UTLA23NM"
 # =============================
 # 1. Select metric to map
 # =============================
-lad_metrics = [c for c in lad_df.columns if c != "LAD25NM"]  # exclude LAD name column
+lad_metrics = [c for c in lad_df.columns if c != "LAD23NM"]  # exclude LAD name column
 metric_col = st.selectbox("Choose metric to display on map:", lad_metrics)
 legend_name = metric_col.replace("_", " ").title()
 
@@ -109,7 +128,6 @@ level = st.selectbox(
 # =============================
 st.markdown("<h2 style='margin-top:0; margin-bottom:0.2em;'>🏴 UK Market Analysis</h2>", unsafe_allow_html=True)
 st.markdown("<h4 style='margin-top:0; margin-bottom:0.3em;'>Interactive Map</h4>", unsafe_allow_html=True)
-
 st.subheader("Demand & Supply Data")
 
 # =============================
@@ -122,8 +140,8 @@ if level == "Regions":
     df = aggregate_lad_to_region(lad_df, metric_col)
     # df = region_df
     key_col = "Region"
-    geojson_key = "feature.properties.RGN24NM"  # adjust to match geojson
-    geojson_prop = "RGN24NM"
+    geojson_key = "feature.properties.eer17nm"  # adjust to match geojson
+    geojson_prop = "eer17nm"
     # metric_col = "companies_per_1k"
 elif level == "Counties":
     geojson_path = COUNTY_GEOJSON
@@ -132,22 +150,24 @@ elif level == "Counties":
     # df = pd.DataFrame({
     #     "County": counties,
     #     "companies_per_1k": np.random.uniform(1, 6, len(counties))
-    # })
+    # })eer17nm
     df = aggregate_lad_to_county(lad_df, metric_col)
     key_col = "County"
-    geojson_key = "feature.properties.CTY24NM"
-    geojson_prop = "CTY24NM"
+    geojson_key = "feature.properties.CTYUA23NM"
+    geojson_prop = "CTYUA23NM"
     # metric_col = "companies_per_1k"
-elif level == "Cities":
-    geojson_path = CITIES_GEOJSON
-    df = city_df
-    key_col = "City"
-    geojson_key = "feature.properties.TCITY15NM"
-    geojson_prop = "TCITY15NM"
 
 else:  # LADs
     geojson_path = LAD_GEOJSON
-    df = lad_df
+    df = lad_df.copy()  # use original LAD-level df
+    df["LAD23NM"] = df["LAD23NM"].replace({
+        "Herefordshire": "Herefordshire, County of",
+        "Bristol": "Bristol, City of",
+        "Kingston upon Hull": "Kingston upon Hull, City of"
+    })
+    # Make sure the column matches GeoJSON
+    if "LAD23NM" in df.columns:
+        df.rename(columns={"LAD23NM": "LAD25NM"}, inplace=True)
     key_col = "LAD25NM"
     geojson_key = "feature.properties.LAD25NM"
     geojson_prop = "LAD25NM"
@@ -155,14 +175,28 @@ else:  # LADs
 with open(geojson_path, "r") as f:
     geojson_data = json.load(f)
 
+if level == "Regions":
+    for feature in geojson_data["features"]:
+        if feature["properties"]["eer17nm"] == "Eastern":
+            feature["properties"]["eer17nm"] = "East of England"
+# elif level == "Counties":
+#     # Normalize GeoJSON names
+#     for feature in geojson_data["features"]:
+#         name = feature["properties"]["CTYUA23NM"]
+#         if name == "Bristol, City of":
+#             feature["properties"]["CTYUA23NM"] = "Bristol"
+#         elif name == "Kingston upon Hull, City of":
+#             feature["properties"]["CTYUA23NM"] = "Kingston upon Hull"
+#         elif name == "Herefordshire, County of":
+#             feature["properties"]["CTYUA23NM"] = "Herefordshire"
+
+    # print([f["properties"]["CTYUA23NM"] for f in geojson_data["features"]])
 # =================================
 # 3. Create Folium Map & Data Table
 # =================================
 col1, col2 = st.columns([2, 1])  # map gets more space than table
 with col1:
-
     m = folium.Map(location=[54.5, -3], zoom_start=5)
-
     # Add Choropleth directly
     folium.Choropleth(
         geo_data=geojson_data,
@@ -175,7 +209,6 @@ with col1:
         line_opacity=0.2,
         legend_name="Companies per 1k target population"
     ).add_to(m)
-
     # Add hover tooltip
     for feature in geojson_data["features"]:
         area_name = feature["properties"].get(geojson_prop) if geojson_prop in feature["properties"] else None

@@ -1,10 +1,10 @@
 # Core data packages
 pandas==2.0.3
-numpy==1.24.4
+numpy==1.26
 matplotlib==3.7.5
 geopandas>=1.1.1   # allow modern version
 
-# Web & dashboard
+# Web & dashboardd
 streamlit==1.40.1
 folium==0.18.0
 streamlit-folium==0.22.1
@@ -13,3 +13,4 @@ streamlit-folium==0.22.1
 shapely>=2.0
 pyproj>=3.5
 fiona>=1.10
+

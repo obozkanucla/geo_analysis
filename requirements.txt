@@ -1,6 +1,6 @@
 # Core data packages
 pandas==2.0.3
-numpy==1.24.4
+numpy==1.25.2
 matplotlib==3.7.5
 geopandas>=1.1.1   # allow modern version
 
@@ -13,3 +13,4 @@ streamlit-folium==0.22.1
 shapely>=2.0
 pyproj>=3.5
 fiona>=1.10
+

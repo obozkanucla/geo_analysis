@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent / "src"))
-from config import (CITIES_GEOJSON, LAD_GEOJSON, REGION_GEOJSON, COUNTY_GEOJSON,
+from config import (CITIES_GEOJSON, LAD_GEOJSON, REGION_GEOJSON, COUNTY_GEOJSON, HOMECARE_AGENCIES_BY_LAD,
                     LAD_POP_CSV, LAD_POP_CSV_AGG, LAD_TO_REGION_MAPPING, LAD_TO_COUNTY_MAPPING)
 from analysis import load_lad_population
 
@@ -26,6 +26,8 @@ def aggregate_lad_to_level(lad_df, level_map, metric_col):
     df = lad_df.copy()
     df[level_map['name']] = df['LAD23NM'].map(level_map['map'])
     agg_df = df.groupby(level_map['name'])[metric_col].mean().reset_index()
+    agg_df = df.groupby(level_map['name'])[metric_col].sum().reset_index()
+
     agg_df.rename(columns={level_map['name']: level_map['name'], metric_col: metric_col}, inplace=True)
     return agg_df
 
@@ -37,7 +39,8 @@ def aggregate_lad_to_region(lad_df, metric_col):
     """
     df = lad_df.copy()
     df["Region"] = df["LAD23NM"].map(lad_region_dict)
-    agg_df = df.groupby("Region")[metric_col].mean().reset_index()
+    # agg_df = df.groupby("Region")[metric_col].mean().reset_index()
+    agg_df = df.groupby("Region")[metric_col].sum().reset_index()
     return agg_df
 
 # Function to aggregate LAD metrics to region
@@ -67,7 +70,9 @@ def aggregate_lad_to_county(lad_df, metric_col):
     # df = pd.concat([df, pd.DataFrame({"County": ["Hertfordshire"], metric_col: [herts_value]})], ignore_index=True)
     # """
 
-    agg_df = df.groupby("County")[metric_col].mean().reset_index()
+    # agg_df = df.groupby("County")[metric_col].mean().reset_index()
+    agg_df = df.groupby("County")[metric_col].sum().reset_index()
+
     return agg_df
 
 # =============================
@@ -103,6 +108,57 @@ st.set_page_config(page_title="England & Wales Market Analysis", layout="wide")
 
 # Load aggregated data at LAD level
 lad_df = load_lad_population(LAD_POP_CSV_AGG)
+# columns ['LAD23NM', 'Total', 'Aged 4 years and under', 'Aged 5 to 9 years',
+#        'Aged 10 to 14 years', 'Aged 15 to 19 years', 'Aged 20 to 24 years',
+#        'Aged 25 to 29 years', 'Aged 30 to 34 years', 'Aged 35 to 39 years',
+#        'Aged 40 to 44 years', 'Aged 45 to 49 years', 'Aged 50 to 54 years',
+#        'Aged 55 to 59 years', 'Aged 60 to 64 years', 'Aged 65 to 69 years',
+#        'Aged 70 to 74 years', 'Aged 75 to 79 years', 'Aged 80 to 84 years',
+#        'Aged 85 years and over', 'over80_ratio'
+# print(lad_df.columns)
+
+# Load CQC home care agency counts by LAD
+cqc_counts = pd.read_csv(HOMECARE_AGENCIES_BY_LAD)  # columns: ladnm, Agency_Count
+# print(cqc_counts.columns)
+
+# Merge additional columns to the population stats
+lad_df = lad_df.merge(cqc_counts, left_on="LAD23NM", right_on="ladnm", how="left")
+
+# Fill LADs with no agencies with 0
+lad_df["num_agencies"] = lad_df["Agency_Count"].fillna(0)
+
+# Optional: compute agencies per 10,000 people
+# Define age group mappings with correct column names
+age_groups = {
+    "70plus": ["Aged 70 to 74 years", "Aged 75 to 79 years", "Aged 80 to 84 years", "Aged 85 years and over"],
+    "75plus": ["Aged 75 to 79 years", "Aged 80 to 84 years", "Aged 85 years and over"],
+    "80plus": ["Aged 80 to 84 years", "Aged 85 years and over"],
+    "85plus": ["Aged 85 years and over"]
+}
+
+# Loop through each age group
+for group_name, columns in age_groups.items():
+    # Compute population for the age group
+    lad_df[f"Population_{group_name}"] = lad_df[columns].sum(axis=1)
+
+    # Compute agencies per 10,000 people in that age group
+    lad_df[f"agencies_per_10k_{group_name}"] = (lad_df["num_agencies"] / lad_df[f"Population_{group_name}"]) * 10000
+
+# Fill NaNs in case any LAD has zero population
+lad_df[[f"agencies_per_10k_{g}" for g in age_groups.keys()]] = \
+    lad_df[[f"agencies_per_10k_{g}" for g in age_groups.keys()]].fillna(0)
+
+
+# Compute agencies per 10k for each age group
+lad_df["agencies_per_10k_70"] = (lad_df["num_agencies"] / lad_df["Population_70plus"]) * 10000
+lad_df["agencies_per_10k_75"] = (lad_df["num_agencies"] / lad_df["Population_75plus"]) * 10000
+lad_df["agencies_per_10k_80"] = (lad_df["num_agencies"] / lad_df["Population_80plus"]) * 10000
+lad_df["agencies_per_10k_85"] = (lad_df["num_agencies"] / lad_df["Population_85plus"]) * 10000
+
+# Fill NaNs in case any LAD has zero population
+lad_df[["agencies_per_10k_70","agencies_per_10k_75","agencies_per_10k_80","agencies_per_10k_85"]] = \
+    lad_df[["agencies_per_10k_70","agencies_per_10k_75","agencies_per_10k_80","agencies_per_10k_85"]].fillna(0)
+
 # Load LAD-to-region mapping
 lad_region_map = pd.read_csv(LAD_TO_REGION_MAPPING)  # your CSV path
 lad_region_dict = dict(zip(lad_region_map["LAD23NM"], lad_region_map["RGN23NM"]))
@@ -207,7 +263,7 @@ with col1:
         fill_color="Reds",
         fill_opacity=0.7,
         line_opacity=0.2,
-        legend_name="Companies per 1k target population"
+        legend_name=metric_col
     ).add_to(m)
     # Add hover tooltip
     for feature in geojson_data["features"]:

@@ -11,11 +11,15 @@ postcode_map = pd.read_csv(POSTCODE_MAPPING)
 # Normalize postcodes
 cqc["Postcode"] = cqc["Postcode"].str.upper().str.strip()
 postcode_map["pcds"] = postcode_map["pcds"].str.upper().str.strip()
+dup_counts = cqc.duplicated(subset=["Name"], keep=False).sum()
+print("Duplicate agencies before to merge:", dup_counts)
 
 # Merge on postcode
 cqc_geo = cqc.merge(postcode_map[["pcds","oa21cd","lsoa21cd","lsoa21nm",
                                   "msoa21cd","msoa21nm","ladcd","ladnm"]],
                     left_on="Postcode", right_on="pcds", how="left")
+dup_counts = cqc_geo.duplicated(subset=["Name"], keep=False).sum()
+print("Duplicate agencies due to merge:", dup_counts)
 
 # Example aggregation: number of agencies per LAD
 agg_lad = cqc_geo.groupby("ladnm")["Name"].count().reset_index(name="Agency_Count")

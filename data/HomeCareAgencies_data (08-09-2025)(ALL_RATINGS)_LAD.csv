@@ -1,0 +1,298 @@
+ladnm,Agency_Count
+Adur,10
+Amber Valley,20
+Arun,44
+Ashfield,31
+Ashford,37
+Babergh,27
+Barking and Dagenham,169
+Barnet,113
+Barnsley,59
+Basildon,69
+Basingstoke and Deane,54
+Bassetlaw,31
+Bath and North East Somerset,31
+Bedford,94
+Bexley,77
+Birmingham,364
+Blaby,40
+Blackburn with Darwen,42
+Blackpool,29
+Bolsover,12
+Bolton,81
+Boston,9
+"Bournemouth, Christchurch and Poole",133
+Bracknell Forest,27
+Bradford,120
+Braintree,41
+Breckland,26
+Brent,111
+Brentwood,33
+Brighton and Hove,70
+"Bristol, City of",108
+Broadland,33
+Bromley,98
+Bromsgrove,20
+Broxbourne,19
+Broxtowe,17
+Buckinghamshire,145
+Burnley,33
+Bury,54
+Calderdale,52
+Cambridge,31
+Camden,53
+Cannock Chase,31
+Canterbury,45
+Castle Point,23
+Central Bedfordshire,63
+Charnwood,47
+Chelmsford,70
+Cheltenham,29
+Cherwell,43
+Cheshire East,100
+Cheshire West and Chester,87
+Chesterfield,42
+Chichester,32
+Chorley,25
+City of London,13
+Colchester,89
+Cornwall,129
+Cotswold,23
+County Durham,71
+Coventry,152
+Crawley,52
+Croydon,190
+Cumberland,65
+Dacorum,43
+Darlington,22
+Dartford,71
+Derby,135
+Derbyshire Dales,10
+Doncaster,77
+Dorset,95
+Dover,34
+Dudley,67
+Ealing,119
+East Cambridgeshire,18
+East Devon,28
+East Hampshire,29
+East Hertfordshire,27
+East Lindsey,15
+East Riding of Yorkshire,65
+East Staffordshire,29
+East Suffolk,53
+Eastbourne,31
+Eastleigh,40
+Elmbridge,28
+Enfield,140
+Epping Forest,37
+Epsom and Ewell,25
+Erewash,24
+Exeter,29
+Fareham,28
+Fenland,23
+Flintshire,2
+Folkestone and Hythe,22
+Forest of Dean,15
+Fylde,22
+Gateshead,51
+Gedling,39
+Gloucester,93
+Gosport,13
+Gravesham,37
+Great Yarmouth,13
+Greenwich,109
+Guildford,21
+Hackney,50
+Halton,17
+Hammersmith and Fulham,43
+Harborough,19
+Haringey,70
+Harlow,41
+Harrow,107
+Hart,34
+Hartlepool,13
+Hastings,19
+Havant,22
+Havering,125
+"Herefordshire, County of",49
+Hertsmere,38
+High Peak,20
+Hillingdon,99
+Hinckley and Bosworth,30
+Horsham,33
+Hounslow,80
+Huntingdonshire,43
+Hyndburn,21
+Ipswich,78
+Isle of Wight,44
+Isles of Scilly,1
+Islington,52
+Kensington and Chelsea,21
+King's Lynn and West Norfolk,30
+"Kingston upon Hull, City of",65
+Kingston upon Thames,50
+Kirklees,92
+Knowsley,38
+Lambeth,66
+Lancaster,35
+Leeds,266
+Leicester,201
+Lewes,26
+Lewisham,90
+Lichfield,14
+Lincoln,28
+Liverpool,123
+Luton,93
+Maidstone,54
+Maldon,12
+Malvern Hills,15
+Manchester,138
+Mansfield,38
+Medway,124
+Melton,10
+Merton,64
+Mid Devon,14
+Mid Suffolk,16
+Mid Sussex,31
+Middlesbrough,31
+Milton Keynes,200
+Mole Valley,33
+New Forest,41
+Newark and Sherwood,26
+Newcastle upon Tyne,53
+Newcastle-under-Lyme,28
+Newham,100
+North Devon,19
+North East Derbyshire,16
+North East Lincolnshire,29
+North Hertfordshire,36
+North Kesteven,29
+North Lincolnshire,19
+North Norfolk,22
+North Northamptonshire,170
+North Somerset,43
+North Tyneside,47
+North Warwickshire,12
+North West Leicestershire,17
+North Yorkshire,175
+Northumberland,53
+Norwich,52
+Nottingham,157
+Nuneaton and Bedworth,41
+Oadby and Wigston,19
+Oldham,70
+Oxford,45
+Pendle,30
+Peterborough,139
+Plymouth,55
+Portsmouth,57
+Preston,66
+Reading,70
+Redbridge,130
+Redcar and Cleveland,22
+Redditch,15
+Reigate and Banstead,43
+Ribble Valley,5
+Richmond upon Thames,32
+Rochdale,63
+Rochford,17
+Rossendale,16
+Rother,17
+Rotherham,67
+Rugby,32
+Runnymede,33
+Rushcliffe,35
+Rushmoor,39
+Rutland,13
+Salford,66
+Sandwell,116
+Sefton,57
+Sevenoaks,21
+Sheffield,151
+Shropshire,96
+Slough,69
+Solihull,68
+Somerset,118
+South Cambridgeshire,50
+South Derbyshire,18
+South Gloucestershire,87
+South Hams,21
+South Holland,19
+South Kesteven,40
+South Norfolk,30
+South Oxfordshire,32
+South Ribble,26
+South Staffordshire,20
+South Tyneside,21
+Southampton,104
+Southend-on-Sea,90
+Southwark,65
+Spelthorne,23
+St Albans,28
+St. Helens,49
+Stafford,44
+Staffordshire Moorlands,15
+Stevenage,50
+Stockport,83
+Stockton-on-Tees,50
+Stoke-on-Trent,93
+Stratford-on-Avon,31
+Stroud,25
+Sunderland,56
+Surrey Heath,30
+Sutton,60
+Swale,42
+Swindon,68
+Tameside,36
+Tamworth,17
+Tandridge,27
+Teignbridge,35
+Telford and Wrekin,71
+Tendring,45
+Test Valley,43
+Tewkesbury,23
+Thanet,26
+Three Rivers,21
+Thurrock,84
+Tonbridge and Malling,40
+Torbay,34
+Torridge,21
+Tower Hamlets,86
+Trafford,64
+Tunbridge Wells,27
+Uttlesford,19
+Vale of White Horse,50
+Wakefield,94
+Walsall,95
+Waltham Forest,61
+Wandsworth,46
+Warrington,58
+Warwick,34
+Watford,34
+Waverley,31
+Wealden,26
+Welwyn Hatfield,54
+West Berkshire,43
+West Devon,13
+West Lancashire,14
+West Lindsey,14
+West Northamptonshire,194
+West Oxfordshire,28
+West Suffolk,61
+Westminster,24
+Westmorland and Furness,56
+Wigan,58
+Wiltshire,150
+Winchester,45
+Windsor and Maidenhead,30
+Wirral,60
+Woking,35
+Wokingham,57
+Wolverhampton,144
+Worcester,37
+Worthing,42
+Wychavon,30
+Wyre,22
+Wyre Forest,21
+York,47

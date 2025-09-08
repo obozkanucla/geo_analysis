@@ -170,8 +170,32 @@ lad_county_dict = dict(zip(lad_county_map["LTLA23NM"], lad_county_map["UTLA23NM"
 # =============================
 # 1. Select metric to map
 # =============================
+# metrics dict: old column -> new name
+metric_dict = {
+    "Total": "Total Population",
+    "Population_70plus": "Population 70+",
+    "Population_75plus": "Population 75+",
+    "Population_80plus": "Population 80+",
+    "Population_85plus": "Population 85+",
+    "num_agencies": "Number of Homecare Agencies",
+    "agencies_per_10k_70": "Agencies per 10k (70+)",
+    "agencies_per_10k_75": "Agencies per 10k (75+)",
+    "agencies_per_10k_80": "Agencies per 10k (80+)",
+    "agencies_per_10k_85": "Agencies per 10k (85+)"
+}
+
+# Clean metrics list for selection
+clean_metrics = list(metric_dict.keys())
+# Streamlit selectbox for a single metric
+metric_col = st.selectbox(
+    "Choose metric to display on map:",
+    options=clean_metrics,
+    format_func=lambda x: metric_dict[x],
+    index=0  # first metric selected by default
+)
+
 lad_metrics = [c for c in lad_df.columns if c != "LAD23NM"]  # exclude LAD name column
-metric_col = st.selectbox("Choose metric to display on map:", lad_metrics)
+# metric_col = st.selectbox("Choose metric to display on map:", lad_metrics)
 legend_name = metric_col.replace("_", " ").title()
 
 level = st.selectbox(

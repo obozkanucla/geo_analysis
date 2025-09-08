@@ -4,7 +4,7 @@ numpy==1.26
 matplotlib==3.7.5
 geopandas>=1.1.1   # allow modern version
 
-# Web & dashboardd
+# Web & dashboard
 streamlit==1.40.1
 folium==0.18.0
 streamlit-folium==0.22.1

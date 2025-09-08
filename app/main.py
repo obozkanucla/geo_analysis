@@ -75,6 +75,71 @@ def aggregate_lad_to_county(lad_df, metric_col):
 
     return agg_df
 
+
+def aggregate_lad_metrics(lad_df, level_map, level_name, population_cols, rating_cols, agency_col="num_agencies"):
+    """
+    Aggregate LAD-level data to counties or regions.
+
+    Parameters
+    ----------
+    lad_df : pd.DataFrame
+        LAD-level DataFrame containing populations, agencies, and CQC ratings
+    level_map : dict
+        Mapping from LAD name to higher level name (e.g., Region/County)
+        Format: {"LAD23NM": "RegionName"}
+    level_name : str
+        Name of the aggregation level (e.g., "Region" or "County")
+    population_cols : list
+        List of population columns to sum (e.g., ['Population_70plus', 'Population_75plus'])
+    rating_cols : list
+        List of rating count columns (Good, Outstanding, Requires Improvement, Inadequate)
+    agency_col : str
+        Column name for total agencies (including rated and unrated)
+
+    Returns
+    -------
+    agg_df : pd.DataFrame
+        Aggregated DataFrame with:
+            - summed populations
+            - summed agency counts
+            - summed CQC rating counts
+            - recalculated agencies per 10k for age groups
+            - CQC rating percentages
+    """
+    df = lad_df.copy()
+    # print(df.columns)
+    if level_name == "County":
+        df["LAD23NM"] = df["LAD23NM"].replace({
+        "Herefordshire": "Herefordshire, County of",
+        "Bristol": "Bristol, City of",
+        "Kingston upon Hull": "Kingston upon Hull, City of"
+        })
+
+    df[level_name] = df["LAD23NM"].map(level_map)
+
+    # Columns to sum
+    sum_cols = population_cols + [agency_col] + rating_cols + ["Not Rated"] + ['Total']
+
+    # Aggregate by sum
+    agg_df = df.groupby(level_name)[sum_cols].sum().reset_index()
+
+    # Compute agencies per 10k for each age group
+    for pop_col in population_cols:
+        age_suffix = pop_col.split("_")[-1]  # e.g., '70plus'
+        agg_df[f"agencies_per_10k_{age_suffix}"] = (agg_df[agency_col] / agg_df[pop_col]) * 10000
+        agg_df[f"agencies_per_10k_{age_suffix}"] = agg_df[f"agencies_per_10k_{age_suffix}"].fillna(0)
+
+    # Compute CQC rating percentages based on rated agencies only
+    agg_df["Rated_Total"] = agg_df[rating_cols].sum(axis=1)
+    for col in rating_cols:
+        pct_col = f"{col}_pct"
+        agg_df[pct_col] = (agg_df[col] / agg_df["Rated_Total"] * 100).fillna(0)
+
+    # Compute Unrated percentage (of total agencies)
+    agg_df["Unrated_pct"] = (agg_df["Not Rated"] / agg_df[agency_col] * 100).fillna(0)
+
+    return agg_df
+
 # =============================
 # 1. Sample Data
 # =============================
@@ -125,7 +190,7 @@ cqc_counts = pd.read_csv(HOMECARE_AGENCIES_BY_LAD)  # columns: ladnm, Agency_Cou
 lad_df = lad_df.merge(cqc_counts, left_on="LAD23NM", right_on="ladnm", how="left")
 
 # Fill LADs with no agencies with 0
-lad_df["num_agencies"] = lad_df["Agency_Count"].fillna(0)
+lad_df["num_agencies"] = lad_df["Total_Agencies"].fillna(0)
 
 # Optional: compute agencies per 10,000 people
 # Define age group mappings with correct column names
@@ -135,6 +200,10 @@ age_groups = {
     "80plus": ["Aged 80 to 84 years", "Aged 85 years and over"],
     "85plus": ["Aged 85 years and over"]
 }
+population_cols = ["Population_70plus", "Population_75plus", "Population_80plus", "Population_85plus"]
+rating_cols = ["Good", "Outstanding", "Requires Improvement", "Inadequate"]
+
+# Calculate Population Totals & LAD level stats
 
 # Loop through each age group
 for group_name, columns in age_groups.items():
@@ -159,12 +228,31 @@ lad_df["agencies_per_10k_85"] = (lad_df["num_agencies"] / lad_df["Population_85p
 lad_df[["agencies_per_10k_70","agencies_per_10k_75","agencies_per_10k_80","agencies_per_10k_85"]] = \
     lad_df[["agencies_per_10k_70","agencies_per_10k_75","agencies_per_10k_80","agencies_per_10k_85"]].fillna(0)
 
+
 # Load LAD-to-region mapping
 lad_region_map = pd.read_csv(LAD_TO_REGION_MAPPING)  # your CSV path
 lad_region_dict = dict(zip(lad_region_map["LAD23NM"], lad_region_map["RGN23NM"]))
 
 lad_county_map = pd.read_csv(LAD_TO_COUNTY_MAPPING)  # your CSV path
 lad_county_dict = dict(zip(lad_county_map["LTLA23NM"], lad_county_map["UTLA23NM"]))
+
+region_df = aggregate_lad_metrics(
+    lad_df,
+    level_map=lad_region_dict,
+    level_name="Region",
+    population_cols=population_cols,
+    rating_cols=rating_cols,
+    agency_col="num_agencies"
+)
+
+county_df = aggregate_lad_metrics(
+    lad_df,
+    level_map=lad_county_dict,
+    level_name="County",
+    population_cols=population_cols,
+    rating_cols=rating_cols,
+    agency_col="num_agencies"
+)
 
 
 # =============================
@@ -184,6 +272,18 @@ metric_dict = {
     "agencies_per_10k_85": "Agencies per 10k (85+)"
 }
 
+metric_dict.update({
+    "Good": "Agencies Rated Good",
+    "Outstanding": "Agencies Rated Outstanding",
+    "Requires Improvement": "Agencies Requires Improvement",
+    "Inadequate": "Agencies Rated Inadequate",
+    "Not Rated": "Agencies Not Rated",
+    "Good_pct": "% Agencies Good",
+    "Outstanding_pct": "% Agencies Outstanding",
+    "Requires Improvement_pct": "% Agencies Requires Improvement",
+    "Inadequate_pct": "% Agencies Inadequate",
+    "Unrated_pct": "% Agencies Not Rated"
+})
 # Clean metrics list for selection
 clean_metrics = list(metric_dict.keys())
 # Streamlit selectbox for a single metric
@@ -217,7 +317,7 @@ st.subheader("Demand & Supply Data")
 
 if level == "Regions":
     geojson_path = REGION_GEOJSON
-    df = aggregate_lad_to_region(lad_df, metric_col)
+    df = region_df
     # df = region_df
     key_col = "Region"
     geojson_key = "feature.properties.eer17nm"  # adjust to match geojson
@@ -231,7 +331,7 @@ elif level == "Counties":
     #     "County": counties,
     #     "companies_per_1k": np.random.uniform(1, 6, len(counties))
     # })eer17nm
-    df = aggregate_lad_to_county(lad_df, metric_col)
+    df = county_df
     key_col = "County"
     geojson_key = "feature.properties.CTYUA23NM"
     geojson_prop = "CTYUA23NM"

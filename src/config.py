@@ -24,8 +24,9 @@ LAD_TO_COUNTY_MAPPING = f"{BASE_DIR}/Local_Authority_District_to_County_and_Unit
 MASTER_MAPPING = f"{BASE_DIR}/Ward_to_Local_Authority_District_to_County_to_Region_to_Country_(May_2023)_Lookup_in_United_Kingdom.csv"
 WARD_TO_LAD_MAPPING = f"{BASE_DIR}/LSOA_(2021)_to_Electoral_Ward_(2023)_to_LAD_(2023)_Best_Fit_Lookup_in_EW.csv"
 POSTCODE_MAPPING = f"{BASE_DIR}/PCD_OA21_LSOA21_MSOA21_LAD_MAY25_UK_LU.csv"
-HOMECARE_AGENCIES = f"{BASE_DIR}/HomeCareAgencies_data (08-09-2025)(ALL_RATINGS).csv"
-HOMECARE_AGENCIES_BY_LAD = f"{BASE_DIR}/HomeCareAgencies_data (08-09-2025)(ALL_RATINGS)_LAD.csv"
+# HOMECARE_AGENCIES = f"{BASE_DIR}/HomeCareAgencies_data (08-09-2025)(ALL_RATINGS).csv"
+HOMECARE_AGENCIES = f"{BASE_DIR}/HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS).csv"
+HOMECARE_AGENCIES_BY_LAD = f"{BASE_DIR}/HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS)_LAD_CQC_counts.csv"
 # =============================
 # Map settings
 # =============================

@@ -4,7 +4,12 @@
 # Data paths
 # =============================
 # config.py
-BASE_DIR = "/Users/obozkan/Library/Mobile Documents/com~apple~CloudDocs/__Python/geo_analysis/data"
+import os
+
+# Base directory relative to this config.py file
+BASE_DIR = os.path.join(os.path.dirname(__file__), "../data")
+
+# BASE_DIR = "/Users/obozkan/Library/Mobile Documents/com~apple~CloudDocs/__Python/geo_analysis/data"
 
 CITIES_GEOJSON = f"{BASE_DIR}/Major_Towns_and_Cities_Dec_2015_Boundaries_V2_2022_121402779136482658.geojson"
 LAD_GEOJSON = f"{BASE_DIR}/LAD_MAY_2025_UK_BGC_V2_1110015208521213948.geojson"

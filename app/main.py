@@ -306,9 +306,7 @@ level = st.selectbox(
 # =============================
 # 1. Header & Dropdown
 # =============================
-st.markdown("<h2 style='margin-top:0; margin-bottom:0.2em;'>🏴 UK Market Analysis</h2>", unsafe_allow_html=True)
-st.markdown("<h4 style='margin-top:0; margin-bottom:0.3em;'>Interactive Map</h4>", unsafe_allow_html=True)
-st.subheader("Demand & Supply Data")
+st.markdown("<h2 style='margin-top:0; margin-bottom:0.2em;'>🏴 UK Homecare Market Analysis</h2>", unsafe_allow_html=True)
 
 # =============================
 # 2. Load GeoJSON

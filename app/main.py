@@ -289,13 +289,54 @@ if level == "Local Authority Districts" and not agencies_df.empty:
 
     st.markdown("#### 🏥 Homecare Agency Locations")
     agencies_filtered = agencies_df.dropna(subset=["Latitude", "Longitude"])
+
+    # Explicit provider column
+    provider_col = "Provider name"
+    # Detect rating column (case-insensitive)
+    rating_col = next((c for c in agencies_filtered.columns if "rating" in c.lower()), None)
+    # Map of rating short codes
+    rating_map = {
+        "Outstanding": "O",
+        "Good": "G",
+        "Requires improvement": "RI",
+        "Requires Improvement": "RI",
+        "Inadequate": "I",
+        "Not yet rated": "N/A",
+        "Not Rated": "N/A",
+        "N/A": "N/A"
+    }
+    # Compute counts per provider
+    provider_summary = []
+    for prov, group in agencies_filtered.groupby(provider_col):
+        total = len(group)
+        if total < 5:
+            continue  # skip small ones
+
+        # Count each rating type
+        rating_counts = group[rating_col].fillna("N/A").map(rating_map).value_counts().to_dict()
+        summary = {
+            "Provider": prov,
+            "Total": total,
+            "O": rating_counts.get("O", 0),
+            "G": rating_counts.get("G", 0),
+            "RI": rating_counts.get("RI", 0),
+            "I": rating_counts.get("I", 0),
+            "N/A": rating_counts.get("N/A", 0),
+        }
+        provider_summary.append(summary)
+
     provider_counts = agencies_filtered["Provider name"].value_counts()
     # large_providers = provider_counts[provider_counts >= 5].index
     large_providers = provider_counts[provider_counts >= 5].sort_values(ascending=False)
     # print(large_providers)
     # Build dropdown labels with counts
+    # provider_options = ["All"] + [
+    #     f"{prov} ({count})" for prov, count in large_providers.items()
+    # ]
+    # Build dropdown labels
     provider_options = ["All"] + [
-        f"{prov} ({count})" for prov, count in large_providers.items()
+        f"{p['Provider']} (total={p['Total']}, O={p['O']}, G={p['G']}, RI={p['RI']}, I={p['I']}, N/A={p['N/A']})"
+        for p in sorted(provider_summary, key=lambda x: x['Total'], reverse=True)
     ]
 
     selected_option = st.selectbox(
@@ -347,6 +388,25 @@ if level == "Local Authority Districts" and not agencies_df.empty:
         np.nan: "gray"
     }
 
+    # =============================
+    # 🎯 Filter by CQC Rating
+    # =============================
+    rating_options = ["All", "Outstanding", "Good", "Requires improvement", "Inadequate", "Not yet rated"]
+    rating_filter = st.selectbox("Filter by CQC Rating:", options=rating_options, index=0)
+
+    if rating_filter != "All":
+        agencies_filtered = agencies_filtered[
+            agencies_filtered[rating_col].str.contains(rating_filter, case=False, na=False)
+        ]
+
+    # Optional summary text
+    total = len(agencies_filtered)
+    st.markdown(
+        f"**Showing {total} agencies** "
+        f"({rating_filter if rating_filter != 'All' else 'All ratings'})"
+    )
+
+
     marker_cluster = MarkerCluster(name="Homecare Agencies").add_to(m)
 
     for _, row in agencies_filtered.iterrows():
@@ -356,7 +416,7 @@ if level == "Local Authority Districts" and not agencies_df.empty:
 
         # Popup info
         popup_html = (
-            f"{row.get('Provider ame', '')}</b><br>"
+            f"{row.get('Provider name', '')}</b><br>"
             # f"<b>{row["Provider name"]}</b><br>"
             f"{row.get('Location_Name', '')}<br>"
             f"{row.get('Location_Postcode', '')}<br>"
@@ -373,6 +433,21 @@ if level == "Local Authority Districts" and not agencies_df.empty:
             popup=popup_html,
             tooltip=f"{row.get('Location_Name', 'Provider name')} — {rating_value}"
         ).add_to(marker_cluster)
+
+    # Add static legend
+    legend_html = """
+    <div style="position: fixed; bottom: 30px; left: 30px; width: 160px; height: 160px;
+        background-color: white; border:2px solid grey; z-index:9999; font-size:14px; padding: 10px;">
+    <b>CQC Ratings</b><br>
+    <i style="background:darkgreen; color:darkgreen;">--</i> Outstanding<br>
+    <i style="background:green; color:green;">--</i> Good<br>
+    <i style="background:orange; color:orange;">--</i> Requires improvement<br>
+    <i style="background:red; color:red;">--</i> Inadequate<br>
+    <i style="background:gray; color:gray;">--</i> Not yet rated
+    </div>
+    """
+    m.get_root().html.add_child(folium.Element(legend_html))
+
 folium.LayerControl(collapsed=False).add_to(m)
 
 # Display Map + Table

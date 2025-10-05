@@ -291,30 +291,88 @@ if level == "Local Authority Districts" and not agencies_df.empty:
     agencies_filtered = agencies_df.dropna(subset=["Latitude", "Longitude"])
     provider_counts = agencies_filtered["Provider name"].value_counts()
     # large_providers = provider_counts[provider_counts >= 5].index
-    large_providers = provider_counts[provider_counts >= 5].sort_values(ascending=False).index
-    selected_provider = st.selectbox(
+    large_providers = provider_counts[provider_counts >= 5].sort_values(ascending=False)
+    # print(large_providers)
+    # Build dropdown labels with counts
+    provider_options = ["All"] + [
+        f"{prov} ({count})" for prov, count in large_providers.items()
+    ]
+
+    selected_option = st.selectbox(
         "Select provider (≥5 locations):",
-        options=["All"] + list(large_providers),
+        options=list(provider_options),
         index=0
     )
-
-    if selected_provider != "All":
+    # Parse provider name back from label
+    if selected_option != "All":
+        selected_provider = selected_option.split(" (")[0]
+        # print(selected_provider)
         agencies_filtered = agencies_filtered[agencies_filtered["Provider name"] == selected_provider]
+    else:
+        selected_provider = None
+
+    # selected_provider = st.selectbox(
+    #     "Select provider (≥5 locations):",
+    #     options=["All"] + list(large_providers),
+    #     index=0
+    # )
+
+    # if selected_provider != "All":
+    #     agencies_filtered = agencies_filtered[agencies_filtered["Provider name"] == selected_provider]
+
+    marker_cluster = MarkerCluster(name="Homecare Agencies").add_to(m)
+
+    # for _, row in agencies_filtered.iterrows():
+    #     popup_html = f"<b>{row['Provider name']}</b><br>{row.get('Location_Name', '')}<br>{row.get('Postcode', '')}"
+    #     folium.CircleMarker(
+    #         location=[row["Latitude"], row["Longitude"]],
+    #         radius=4,
+    #         color="blue",
+    #         fill=True,
+    #         fill_opacity=0.7,
+    #         popup=popup_html,
+    #         tooltip=row.get("Location_Name", row["Provider name"])
+    #     ).add_to(marker_cluster)
+    # Define color mapping for CQC ratings
+    rating_col = next((c for c in agencies_filtered.columns if "rating" in c.lower()), None)
+    rating_colors = {
+        "Outstanding": "darkgreen",
+        "Good": "green",
+        "Requires improvement": "orange",
+        "Inadequate": "red",
+        "Not yet rated": "gray",
+        "Not Rated": "gray",
+        "N/A": "gray",
+        None: "gray",
+        np.nan: "gray"
+    }
 
     marker_cluster = MarkerCluster(name="Homecare Agencies").add_to(m)
 
     for _, row in agencies_filtered.iterrows():
-        popup_html = f"<b>{row['Provider name']}</b><br>{row.get('Location_Name', '')}<br>{row.get('Postcode', '')}"
+        # Determine color
+        rating_value = str(row.get(rating_col, "N/A")).strip().title() if rating_col else "N/A"
+        color = rating_colors.get(rating_value, "gray")
+
+        # Popup info
+        popup_html = (
+            f"{row.get('Provider ame', '')}</b><br>"
+            # f"<b>{row["Provider name"]}</b><br>"
+            f"{row.get('Location_Name', '')}<br>"
+            f"{row.get('Location_Postcode', '')}<br>"
+            f"<b>Rating:</b> {rating_value}"
+        )
+
         folium.CircleMarker(
             location=[row["Latitude"], row["Longitude"]],
-            radius=4,
-            color="blue",
+            radius=5,
+            color=color,
             fill=True,
-            fill_opacity=0.7,
+            fill_color=color,
+            fill_opacity=0.8,
             popup=popup_html,
-            tooltip=row.get("Location_Name", row["Provider name"])
+            tooltip=f"{row.get('Location_Name', 'Provider name')} — {rating_value}"
         ).add_to(marker_cluster)
-
 folium.LayerControl(collapsed=False).add_to(m)
 
 # Display Map + Table

@@ -372,6 +372,8 @@ if level == "Regions":
 # =================================
 # 3. Create Folium Map & Data Table
 # =================================
+
+
 col1, col2 = st.columns([2, 1])  # map gets more space than table
 with col1:
     m = folium.Map(location=[54.5, -3], zoom_start=5)
@@ -387,6 +389,7 @@ with col1:
         line_opacity=0.2,
         legend_name=metric_col
     ).add_to(m)
+    # folium.LayerControl(collapsed=False).add_to(m)
     # Add hover tooltip
     for feature in geojson_data["features"]:
         area_name = feature["properties"].get(geojson_prop) if geojson_prop in feature["properties"] else None
@@ -405,9 +408,67 @@ with col1:
                 },
                 tooltip=f"{area_name}: {val:.2f}"
             ).add_to(m)
+    # =============================
+    # 4. (NEW) Branch Overlay Layer
+    # =============================
 
+    # Example dataset — replace this with your actual branches data source
+    # Ideally load from a CSV such as "data/company_branches.csv"
+    branches_df = pd.DataFrame({
+        "Company": ["CareCo", "CareCo", "CareCo", "CareCo", "CareCo",
+                    "HealthPlus", "HealthPlus", "HealthPlus", "HealthPlus", "HealthPlus", "HealthPlus"],
+        "Branch": ["London", "Birmingham", "Leeds", "Manchester", "Liverpool",
+                   "Oxford", "Cambridge", "Reading", "Bath", "Brighton", "Bristol"],
+        "Latitude": [51.509, 52.486, 53.801, 53.480, 53.407,
+                     51.752, 52.205, 51.454, 51.381, 50.822, 51.454],
+        "Longitude": [-0.118, -1.891, -1.549, -2.242, -2.991,
+                      -1.257, 0.121, -0.978, -2.359, -0.137, -2.587]
+    })
+
+    # Filter for companies with >=5 branches
+    company_counts = branches_df["Company"].value_counts()
+    eligible_companies = company_counts[company_counts >= 5].index
+    branches_df = branches_df[branches_df["Company"].isin(eligible_companies)]
+
+    # Streamlit dropdown for company selection
+    selected_company = st.selectbox(
+        "Select a company to view its branches:",
+        options=["All"] + list(eligible_companies),
+        index=0
+    )
+
+    # Filter branch dataset
+    if selected_company != "All":
+        filtered_branches = branches_df[branches_df["Company"] == selected_company]
+    else:
+        filtered_branches = branches_df
+
+    # Add branch markers to the map
+    from folium import CircleMarker
+    from folium.plugins import MarkerCluster
+
+    marker_cluster = MarkerCluster(name="Company Branches").add_to(m)
+
+    # Optional: color coding by company
+    colors = ["red", "blue", "green", "purple", "orange", "cadetblue", "darkred"]
+    company_colors = {c: colors[i % len(colors)] for i, c in enumerate(eligible_companies)}
+
+    for _, row in filtered_branches.iterrows():
+        popup_html = f"<b>{row['Company']}</b><br>{row['Branch']}"
+        CircleMarker(
+            location=[row["Latitude"], row["Longitude"]],
+            radius=6,
+            color=company_colors.get(row["Company"], "gray"),
+            fill=True,
+            fill_opacity=0.8,
+            popup=popup_html,
+            tooltip=row["Branch"]
+        ).add_to(marker_cluster)
+
+    # folium.LayerControl(collapsed=False).add_to(m)
     # Display map
-    st_folium(m, width=900, height=750)
+    # st_folium(m, width=900, height=750)
+    st_folium(m, width=None, height=750)
 
 with col2:
     st.subheader("📊 Data Table")

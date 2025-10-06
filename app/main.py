@@ -420,7 +420,7 @@ if level == "Local Authority Districts" and not agencies_df.empty:
             # f"<b>{row["Provider name"]}</b><br>"
             f"{row.get('Location_Name', '')}<br>"
             f"{row.get('Location_Postcode', '')}<br>"
-            f"<b>Rating:</b> {rating_value}"
+            f"<b>Rating:</b> {rating_value}" #
         )
 
         folium.CircleMarker(

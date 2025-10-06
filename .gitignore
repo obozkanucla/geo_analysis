@@ -1,1 +1,52 @@
-data_used/PCD_OA21_LSOA21_MSOA21_LAD_MAY25_UK_LU.csv
+# ========================================
+# 🧹 General system and Python noise
+# ========================================
+.DS_Store
+*.log
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# IDE / editor
+.idea/
+.vscode/
+
+# ========================================
+# 🧠 Streamlit & runtime cache
+# ========================================
+.streamlit/
+.streamlit_cache/
+.cache/
+app/__pycache__/
+
+# ========================================
+# 🗺️ Data management
+# ========================================
+# Ignore bulky or derived datasets that shouldn't go to GitHub
+data_used/
+data/ONSPD_Centroids.csv
+data/ONSPD_Online_latest_Postcode_Centroids_.csv
+data/*.zip
+data/*.geojson
+data/*.ods
+
+# BUT keep smaller / core CSVs required by Streamlit
+!data/PopulationStatsByLADDetail_aggregated.csv
+!data/HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS).csv
+!data/HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS)_LAD_CQC_counts.csv
+!data/Local_Authority_District_to_Region_(December_2023)_Lookup_in_England.csv
+!data/Local_Authority_District_to_County_and_Unitary_Authority_(April_2023)_Lookup_in_EW.csv
+!data/LAD_MAY_2025_UK_BGC_V2_1110015208521213948.geojson
+!data/Counties_and_Unitary_Authorities_December_2023_Boundaries_UK_BSC_4952317392296043005.geojson
+!data/European_Electoral_Regions_Dec_2017_UK_BSC_2022_2476479127562833087.geojson
+
+# ========================================
+# 🔬 Analysis / scratch files
+# ========================================
+src/*.csv
+src/*.xlsx
+src/__pycache__/

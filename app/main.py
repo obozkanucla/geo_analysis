@@ -195,31 +195,33 @@ try:
 
         st.success(f"✅ Mapped {len(agencies_df)} agencies to coordinates.")
 
+
+
         # =============================
         # Count companies with >5 branches
         # =============================
-        if not agencies_df.empty and "Provider name" in agencies_df.columns:
-            branch_counts = agencies_df["Provider name"].value_counts()
-            large_providers = branch_counts[branch_counts > 5]
-            st.write(f"🏢 There are **{len(large_providers)}** providers with more than 5 branches.")
-            st.dataframe(large_providers.rename("Branch count"))
-        else:
-            st.warning("⚠️ Provider name column not found or agency dataset is empty.")
+        # if not agencies_df.empty and "Provider name" in agencies_df.columns:
+        #     branch_counts = agencies_df["Provider name"].value_counts()
+        #     large_providers = branch_counts[branch_counts > 5]
+        #     st.write(f"🏢 There are **{len(large_providers)}** providers with more than 5 branches.")
+        #     st.dataframe(large_providers.rename("Branch count"))
+        # else:
+        #     st.warning("⚠️ Provider name column not found or agency dataset is empty.")
 
         # =============================
         # Filter for geography: south of Birmingham
         # =============================
-        BIRMINGHAM_LAT = 52.48
-
-        # Filter to only those agencies south of Birmingham
-        agencies_south = agencies_df[agencies_df["Latitude"] < BIRMINGHAM_LAT].copy()
-
-        # Count branches per provider (south only)
-        south_branch_counts = agencies_south["Provider name"].value_counts()
-        south_large = south_branch_counts[south_branch_counts > 5]
-
-        st.write(f"📍 There are **{len(south_large)}** providers with more than 5 branches south of Birmingham.")
-        st.dataframe(south_large.rename('Branch count (south of Birmingham)'))
+        # BIRMINGHAM_LAT = 52.48
+        #
+        # # Filter to only those agencies south of Birmingham
+        # agencies_south = agencies_df[agencies_df["Latitude"] < BIRMINGHAM_LAT].copy()
+        #
+        # # Count branches per provider (south only)
+        # south_branch_counts = agencies_south["Provider name"].value_counts()
+        # south_large = south_branch_counts[south_branch_counts > 5]
+        #
+        # st.write(f"📍 There are **{len(south_large)}** providers with more than 5 branches south of Birmingham.")
+        # st.dataframe(south_large.rename('Branch count (south of Birmingham)'))
 
     else:
         st.error("❌ ONSPD_Centroids.csv not found. Please run trim_onspd.py first.")

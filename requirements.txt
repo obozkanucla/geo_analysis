@@ -13,4 +13,11 @@ streamlit-folium==0.22.1
 shapely>=2.0
 pyproj>=3.5
 fiona>=1.10
+geopy>=2.4.1          # for postcode geocoding (Nominatim)
+requests>=2.31.0      # used by geopy under the hood
 
+# =============================
+# ⚙️ System utils (safe defaults)
+# =============================
+python-dateutil>=2.8
+tqdm>=4.65.0          # for progress bars if you later use them

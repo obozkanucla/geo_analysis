@@ -431,7 +431,8 @@ if level == "Local Authority Districts" and not agencies_df.empty:
             fill_color=color,
             fill_opacity=0.8,
             popup=popup_html,
-            tooltip=f"{row.get('Location_Name', 'Provider name')} — {rating_value}"
+            tooltip=f"{row.get('Location_Name', row['Provider name'])} — {rating_value}"
+            # tooltip=f"{row.get('Location_Name', 'Provider name')} — {rating_value}"
         ).add_to(marker_cluster)
 
     # Add static legend

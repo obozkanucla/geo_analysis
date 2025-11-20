@@ -17,7 +17,7 @@ from operator_mapping import (
 ROOT = Path(__file__).resolve().parents[2]
 
 DATA_PATH = ROOT / "data" / "HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS)_postcodes.csv"
-ONSPD_PATH = ROOT / "data" / "ONSPD_Centroids.csv"
+ONSPD_PATH = ROOT / "data" / "postcode_centroids_small.csv"
 LAD_TO_COUNTY = ROOT / "data" / \
     "Local_Authority_District_to_County_and_Unitary_Authority_(April_2023)_Lookup_in_EW.csv"
 COUNTY_GEOJSON = ROOT / "data" / \

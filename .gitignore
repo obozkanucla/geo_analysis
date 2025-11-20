@@ -42,6 +42,7 @@ data/*.csv
 
 # But explicitly allow the specific ones we need:
 !data/postcode_centroids_small.csv
+!data/PopulationStatsByLADDetail_aggregated.csv
 
 # ======================
 # Remove temp excel files

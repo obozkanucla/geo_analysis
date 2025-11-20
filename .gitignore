@@ -45,6 +45,8 @@ data/*.csv
 !data/HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS)_postcodes.csv
 !data/HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS)_LAD_CQC_counts.csv
 !data/Local_Authority_District_to_Region_(December_2023)_Lookup_in_England.csv
+!data/Local_Authority_District_to_County_and_Unitary_Authority_(April_2023)_Lookup_in_EW.csv
+
 # ======================
 # Remove temp excel files
 # ======================

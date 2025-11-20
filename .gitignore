@@ -33,16 +33,16 @@ data/HomeCareAgencies_data (08-09-2025)(ALL_RATINGS)_postcodes.csv
 data/HomeCareAgencies_data (08-09-2025)(ALL_RATINGS).csv
 data/*large*.csv
 
-# Still allow small files
-!data/postcode_centroids_small.csv
-!data/*.geojson
-
 # Block all other CSVs by default
 data/*.csv
+
+# Still allow small files
+!data/*.geojson
 
 # But explicitly allow the specific ones we need:
 !data/postcode_centroids_small.csv
 !data/PopulationStatsByLADDetail_aggregated.csv
+!data/HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS)_postcodes.csv
 
 # ======================
 # Remove temp excel files

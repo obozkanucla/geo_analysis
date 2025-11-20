@@ -43,6 +43,7 @@ data/*.csv
 !data/postcode_centroids_small.csv
 !data/PopulationStatsByLADDetail_aggregated.csv
 !data/HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS)_postcodes.csv
+!data/HomeCareAgencies_data (08-09-2025)(ALL_CQC_RATINGS)_LAD_CQC_counts.csv
 
 # ======================
 # Remove temp excel files
